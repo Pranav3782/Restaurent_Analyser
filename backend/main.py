@@ -134,3 +134,4 @@ async def generate_slogan(request: SloganGenerateRequest):
         return {"slogan": slogan}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+

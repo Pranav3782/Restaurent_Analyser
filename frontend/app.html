@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taste Fit</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for fine-tuning aesthetics and animations */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Softer, slightly warmer light background */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top */
+            min-height: 100vh; /* Full viewport height */
+            padding: 2rem 1rem; /* More vertical padding, slightly less horizontal on small screens */
+        }
+
+        /* Main container shadow for a more premium feel */
+        .main-container {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Stronger, softer shadow */
+        }
+
+        /* Override default button focus outline for a cleaner look with Tailwind's focus-ring */
+        button:focus {
+            outline: none;
+        }
+
+        /* Specific chat message styling for clear distinction */
+        .chat-container {
+            height: 350px; /* Fixed height for chat messages */
+            overflow-y: auto;
+            border: 1px solid #e2e8f0; /* light gray border */
+            border-radius: 0.75rem; /* rounded-xl for chat container */
+            padding: 1rem;
+            background-color: #ffffff; /* Pure white for chat background for contrast */
+            scroll-behavior: smooth; /* Smooth scrolling for new messages */
+        }
+        .message {
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem; /* Even more rounded message bubbles */
+            max-width: 85%; /* Slightly more content area */
+            line-height: 1.5; /* Better readability */
+            animation: fadeIn 0.3s ease-out; /* Subtle fade-in for new messages */
+        }
+        .user-message {
+            background-color: #e0f7fa; /* Lighter, cooler blue for user */
+            align-self: flex-end; /* Align to right */
+            margin-left: auto;
+            color: #2c3e50; /* Darker text for user message */
+        }
+        .ai-message {
+            background-color: #f0f4f8; /* Soft light gray for AI */
+            align-self: flex-start; /* Align to left */
+            margin-right: auto;
+            color: #2c3e50; /* Darker text for AI message */
+        }
+
+        /* Animation for loading spinner */
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #6d28d9; /* Deeper violet for spinner */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom styling for the select dropdown arrow */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%236b7280' class='w-6 h-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8.25 4.5l7.5 7.5-7.5 7.5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.25rem;
+            padding-right: 2.5rem; /* Make space for the custom arrow */
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="main-container bg-white rounded-3xl p-8 md:p-10 w-full max-w-md lg:max-w-xl xl:max-w-2xl border border-gray-100">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 text-center leading-tight">
+            Taste <span class="text-purple-700">Fit</span> 🍽️
+        </h1>
+
+        <p class="text-base md:text-lg text-gray-600 mb-8 text-center leading-relaxed">
+            Uncover comprehensive details and reviews about your desired restaurants.
+        </p>
+
+        <div class="space-y-6 mb-8">
+            <div>
+                <label for="restaurantName" class="block text-sm font-medium text-gray-700 mb-2">Restaurant Name</label>
+                <input type="text" id="restaurantName" placeholder="e.g., 'Paradise Biryani'"
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200 ease-in-out placeholder-gray-400">
+            </div>
+            <div>
+                <label for="restaurantLocation" class="block text-sm font-medium text-gray-700 mb-2">Restaurant Location</label>
+                <select id="restaurantLocation"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200 ease-in-out">
+                    <option value="">Select Location </option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Bangalore">Bangalore</option>
+                </select>
+            </div>
+            <div>
+                <label for="analysisType" class="block text-sm font-medium text-gray-700 mb-2">Analysis Focus</label>
+                <select id="analysisType"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200 ease-in-out">
+                    <option value="Overall Analysis">Overall Analysis</option>
+                    <option value="Hygiene">Hygiene</option>
+                    <option value="Cleanliness">Cleanliness</option>
+                    <option value="Affordability">Affordability</option>
+                    <option value="Healthiness">Healthiness</option>
+                </select>
+            </div>
+            <button id="analyzeButton"
+                    class="w-full bg-purple-600 text-white font-semibold py-3.5 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-300 ease-in-out transform hover:-translate-y-0.5 active:translate-y-0.5 shadow-lg hover:shadow-xl">
+                Get Restaurant Analysis
+            </button>
+            <div id="loadingIndicator" class="hidden text-center text-purple-700 text-sm mt-3 flex items-center justify-center font-medium">
+                Analyzing details... <span class="loading-spinner ml-2"></span>
+            </div>
+            <div id="errorMessage" class="hidden text-red-600 text-sm mt-3 text-center font-medium"></div>
+        </div>
+
+        <div id="analysisResultsSection" class="hidden mt-12 pt-10 border-t border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center leading-tight">
+                📊 Detailed Analysis for <span id="restaurantNameDisplay" class="text-purple-700"></span>
+            </h2>
+            <p class="text-lg font-medium text-gray-700 mb-8 text-center leading-relaxed">
+                Focus: <span id="analysisTypeDisplay" class="text-purple-600"></span>
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+                <div class="bg-purple-50 p-6 rounded-2xl shadow-sm text-center border border-purple-100">
+                    <p class="text-sm text-purple-700 font-medium mb-2">Healthiness Rating</p>
+                    <p id="healthinessRating" class="text-4xl font-extrabold text-purple-800"></p>
+                </div>
+                <div class="bg-purple-50 p-6 rounded-2xl shadow-sm text-center border border-purple-100">
+                    <p class="text-sm text-purple-700 font-medium mb-2">Hygiene Rating</p>
+                    <p id="hygieneRating" class="text-4xl font-extrabold text-purple-800"></p>
+                </div>
+                <div class="bg-purple-50 p-6 rounded-2xl shadow-sm text-center border border-purple-100">
+                    <p class="text-sm text-purple-700 font-medium mb-2">Price Rating</p>
+                    <p id="priceRating" class="text-4xl font-extrabold text-purple-800"></p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-7 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Comprehensive Insights:</h3>
+                <p id="summaryDisplay" class="text-gray-700 leading-relaxed text-base"></p>
+            </div>
+
+            <!-- Removed New Feature Buttons and their sections -->
+
+        </div>
+
+        <div id="chatbotSection" class="hidden mt-12 pt-10 border-t border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center leading-tight">
+                🤖 Have a Follow-up Question?
+            </h2>
+            <p class="text-base text-gray-600 mb-8 text-center leading-relaxed">
+                Ask anything about the restaurant's analysis. For instance: 'What are their popular dishes?' or 'Is there private dining?'
+            </p>
+
+            <div id="chatMessages" class="chat-container flex flex-col mb-6">
+                <!-- Chat messages will be appended here -->
+            </div>
+
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <input type="text" id="chatInput" class="flex-grow px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200 ease-in-out placeholder-gray-400" placeholder="Type your question here...">
+                <button id="chatSubmitButton"
+                        class="w-full sm:w-auto bg-purple-600 text-white font-semibold py-2.5 px-7 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-300 ease-in-out transform hover:-translate-y-0.5 active:translate-y-0.5 shadow-lg hover:shadow-xl">
+                    Send
+                </button>
+            </div>
+            <div id="chatLoadingIndicator" class="hidden text-center text-purple-700 text-sm mt-3 flex items-center justify-center font-medium">
+                Thinking... <span class="loading-spinner ml-2"></span>
+            </div>
+            <div id="chatErrorMessage" class="hidden text-red-600 text-sm mt-3 text-center font-medium"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const restaurantNameInput = document.getElementById('restaurantName');
+        const restaurantLocationSelect = document.getElementById('restaurantLocation');
+        const analysisTypeSelect = document.getElementById('analysisType');
+        const analyzeButton = document.getElementById('analyzeButton');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorMessage = document.getElementById('errorMessage');
+        const analysisResultsSection = document.getElementById('analysisResultsSection');
+        const analysisTypeDisplay = document.getElementById('analysisTypeDisplay');
+        const restaurantNameDisplay = document.getElementById('restaurantNameDisplay');
+        const healthinessRating = document.getElementById('healthinessRating');
+        const hygieneRating = document.getElementById('hygieneRating');
+        const priceRating = document.getElementById('priceRating');
+        const summaryDisplay = document.getElementById('summaryDisplay');
+        const chatbotSection = document.getElementById('chatbotSection');
+        const chatMessagesDiv = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const chatSubmitButton = document.getElementById('chatSubmitButton');
+        const chatLoadingIndicator = document.getElementById('chatLoadingIndicator');
+        const chatErrorMessage = document.getElementById('chatErrorMessage');
+
+        // Removed elements for Dish Recommendation and Slogan Generation
+        // const recommendDishesButton = document.getElementById('recommendDishesButton');
+        // const generateSloganButton = document.getElementById('generateSloganButton');
+        // const dishRecommendationSection = document.getElementById('dishRecommendationSection');
+        // const dishRecommendationDisplay = document.getElementById('dishRecommendationDisplay');
+        // const dishLoadingIndicator = document.getElementById('dishLoadingIndicator');
+        // const dishErrorMessage = document.getElementById('dishErrorMessage');
+        // const sloganGenerationSection = document.getElementById('sloganGenerationSection');
+        // const sloganGenerationDisplay = document.getElementById('sloganGenerationDisplay');
+        // const sloganLoadingIndicator = document.getElementById('sloganLoadingIndicator');
+        // const sloganErrorMessage = document.getElementById('sloganErrorMessage');
+
+
+        let globalAnalysisTextRaw = null; // Stores the raw JSON string for chatbot context
+
+        // Backend API base URL
+        const API_BASE_URL = "http://127.0.0.1:8888";
+
+        // Helper to show/hide elements
+        function show(element) { element.classList.remove('hidden'); }
+        function hide(element) { element.classList.add('hidden'); }
+
+        // Function to display messages in the chat interface
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            if (role === 'user') {
+                messageDiv.classList.add('user-message');
+            } else {
+                messageDiv.classList.add('ai-message');
+            }
+            messageDiv.innerHTML = content;
+            chatMessagesDiv.appendChild(messageDiv);
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight; // Scroll to bottom
+        }
+
+        // --- Actual Backend API Calls ---
+
+        async function getRestaurantAnalysis(restaurantName, analysisType, restaurantLocation) {
+            const response = await fetch(`${API_BASE_URL}/analyze`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ restaurant_name: restaurantName, analysis_type: analysisType, restaurant_location: restaurantLocation })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        }
+
+        async function getChatbotResponse(analysisTextRaw, userQuestion) {
+            const response = await fetch(`${API_BASE_URL}/chatbot`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ analysis_text_raw: analysisTextRaw, user_question: userQuestion })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.response; // Assuming the backend returns {"response": "..."}
+        }
+
+        // Removed functions for dish recommendations and slogan generation
+        /*
+        async function getDishRecommendations(analysisTextRaw) {
+            const response = await fetch(`${API_BASE_URL}/recommend_dishes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ analysis_text_raw: analysisTextRaw })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.recommendations;
+        }
+
+        async function getSloganGeneration(analysisTextRaw) {
+            const response = await fetch(`${API_BASE_URL}/generate_slogan`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ analysis_text_raw: analysisTextRaw })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.slogan;
+        }
+        */
+
+
+        // --- Event Listeners ---
+
+        analyzeButton.addEventListener('click', async () => {
+            const restaurantName = restaurantNameInput.value.trim();
+            const analysisType = analysisTypeSelect.value;
+            const restaurantLocation = restaurantLocationSelect.value; // Get the location
+
+            hide(errorMessage);
+            hide(analysisResultsSection);
+            hide(chatbotSection);
+            // Hide removed sections on new analysis
+            // hide(dishRecommendationSection);
+            // hide(sloganGenerationSection);
+            chatMessagesDiv.innerHTML = ''; // Clear chat history
+            globalAnalysisTextRaw = null; // Clear previous analysis
+
+            if (!restaurantName) {
+                show(errorMessage);
+                errorMessage.textContent = "Please enter a restaurant name to analyze.";
+                return;
+            }
+
+            show(loadingIndicator);
+            analyzeButton.disabled = true; // Disable button
+            chatSubmitButton.disabled = true; // Also disable chat button
+            // Disable removed buttons
+            // recommendDishesButton.disabled = true;
+            // generateSloganButton.disabled = true;
+            errorMessage.textContent = "";
+
+            try {
+                const analysisData = await getRestaurantAnalysis(restaurantName, analysisType, restaurantLocation);
+                globalAnalysisTextRaw = JSON.stringify(analysisData); // Store raw JSON string for chatbot
+
+                hide(loadingIndicator);
+                show(analysisResultsSection);
+                show(chatbotSection);
+
+                analysisTypeDisplay.textContent = analysisType;
+                restaurantNameDisplay.textContent = analysisData.restaurant_name || "N/A";
+                healthinessRating.textContent = analysisData.healthiness_rating || "N/A";
+                hygieneRating.textContent = analysisData.hygiene_rating || "N/A";
+                priceRating.textContent = analysisData.price_rating || "N/A";
+                summaryDisplay.textContent = analysisData.summary || "N/A";
+
+                // Initial chat message from AI
+                addMessage('ai', `Hello! I've completed the analysis for ${analysisData.restaurant_name || 'the restaurant'}. How can I help you with more specific details?`);
+
+            } catch (error) {
+                hide(loadingIndicator);
+                show(errorMessage);
+                errorMessage.textContent = `An error occurred during analysis: ${error.message}. Please check your backend server and API keys.`;
+                console.error("Analysis Error:", error);
+            } finally {
+                analyzeButton.disabled = false; // Re-enable button
+                chatSubmitButton.disabled = false; // Re-enable chat button
+                // Re-enable removed buttons
+                // recommendDishesButton.disabled = false;
+                // generateSloganButton.disabled = false;
+            }
+        });
+
+        // Chatbot submit logic
+        chatSubmitButton.addEventListener('click', async () => {
+            const userQuestion = chatInput.value.trim();
+            if (!userQuestion) {
+                chatErrorMessage.textContent = "Please type a question.";
+                show(chatErrorMessage);
+                return;
+            }
+
+            hide(chatErrorMessage);
+            addMessage('user', userQuestion);
+            chatInput.value = ''; // Clear input field
+
+            show(chatLoadingIndicator);
+            chatSubmitButton.disabled = true; // Disable button
+            analyzeButton.disabled = true; // Also disable analyze button
+            // Disable removed buttons
+            // recommendDishesButton.disabled = true;
+            // generateSloganButton.disabled = true;
+
+            try {
+                const botResponse = await getChatbotResponse(globalAnalysisTextRaw, userQuestion);
+                hide(chatLoadingIndicator);
+                addMessage('ai', botResponse);
+            } catch (error) {
+                hide(chatLoadingIndicator);
+                show(chatErrorMessage);
+                chatErrorMessage.textContent = `Error generating response: ${error.message}. Please check your backend server and API keys.`;
+                console.error("Chatbot Error:", error);
+            } finally {
+                chatSubmitButton.disabled = false; // Re-enable button
+                analyzeButton.disabled = false; // Re-enable analyze button
+                // Re-enable removed buttons
+                // recommendDishesButton.disabled = false;
+                // generateSloganButton.disabled = false;
+            }
+        });
+
+        // Allow pressing Enter in chat input to submit
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent default form submission behavior (page reload)
+                chatSubmitButton.click(); // Programmatically click the submit button
+            }
+        });
+
+        // Removed event listener for Dish Recommendation Button
+        /*
+        recommendDishesButton.addEventListener('click', async () => {
+            if (!globalAnalysisTextRaw) {
+                show(dishErrorMessage);
+                dishErrorMessage.textContent = "Please perform an analysis first to get dish recommendations.";
+                return;
+            }
+
+            hide(dishErrorMessage);
+            dishRecommendationDisplay.textContent = ''; // Clear previous recommendations
+            show(dishLoadingIndicator);
+            recommendDishesButton.disabled = true;
+            generateSloganButton.disabled = true;
+            analyzeButton.disabled = true;
+            chatSubmitButton.disabled = true;
+
+
+            try {
+                const recommendations = await getDishRecommendations(globalAnalysisTextRaw);
+                hide(dishLoadingIndicator);
+                show(dishRecommendationSection);
+                dishRecommendationDisplay.textContent = recommendations;
+            } catch (error) {
+                hide(dishLoadingIndicator);
+                show(dishErrorMessage);
+                dishErrorMessage.textContent = `Error getting dish recommendations: ${error.message}.`;
+                console.error("Dish Recommendation Error:", error);
+            } finally {
+                recommendDishesButton.disabled = false;
+                generateSloganButton.disabled = false;
+                analyzeButton.disabled = false;
+                chatSubmitButton.disabled = false;
+            }
+        });
+        */
+
+        // Removed event listener for Slogan Generation Button
+        /*
+        generateSloganButton.addEventListener('click', async () => {
+            if (!globalAnalysisTextRaw) {
+                show(sloganErrorMessage);
+                sloganErrorMessage.textContent = "Please perform an analysis first to generate a slogan.";
+                return;
+            }
+
+            hide(sloganErrorMessage);
+            sloganGenerationDisplay.textContent = ''; // Clear previous slogan
+            show(sloganLoadingIndicator);
+            generateSloganButton.disabled = true;
+            recommendDishesButton.disabled = true;
+            analyzeButton.disabled = true;
+            chatSubmitButton.disabled = true;
+
+            try {
+                const slogan = await getSloganGeneration(globalAnalysisTextRaw);
+                hide(sloganLoadingIndicator);
+                show(sloganGenerationSection);
+                sloganGenerationDisplay.textContent = slogan;
+            } catch (error) {
+                hide(sloganLoadingIndicator);
+                show(sloganErrorMessage);
+                sloganErrorMessage.textContent = `Error generating slogan: ${error.message}.`;
+                console.error("Slogan Generation Error:", error);
+            } finally {
+                generateSloganButton.disabled = false;
+                recommendDishesButton.disabled = false;
+                analyzeButton.disabled = false;
+                chatSubmitButton.disabled = false;
+            }
+        });
+        */
+    </script>
+</body>
+</html>

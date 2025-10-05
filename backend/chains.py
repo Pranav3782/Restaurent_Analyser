@@ -5,7 +5,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Import the new, more robust prompts
-from backend.prompts import (
+from prompts import (
     ANALYSIS_PROMPT,
     CHATBOT_PROMPT,
     DISH_RECOMMENDATION_PROMPT,
@@ -115,4 +115,5 @@ def get_slogan_generation(analysis_text_raw: str) -> str:
     chain = prompt | llm
     response = chain.invoke({"analysis_content": formatted_content})
     return response.content
+
 

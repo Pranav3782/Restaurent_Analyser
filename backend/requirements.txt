@@ -7,3 +7,5 @@ langchain-groq==0.1.5
 beautifulsoup4==4.12.3
 requests==2.31.0
 gunicorn==20.1.0
+uvicorn[standard]
+
